@@ -2,104 +2,141 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
-All colors MUST be HSL.
-*/
+/* Southstone Financial Services — Noir & Gold design system.
+   All colors MUST be HSL. */
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    /* Core palette — Noir & Gold */
+    --background: 0 0% 5%;            /* #0d0d0d noir */
+    --foreground: 42 38% 92%;         /* warm parchment */
 
-    --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    --card: 0 0% 7%;
+    --card-foreground: 42 38% 92%;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
+    --popover: 0 0% 7%;
+    --popover-foreground: 42 38% 92%;
 
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
+    --primary: 42 53% 54%;            /* #c9a84c gold */
+    --primary-foreground: 0 0% 5%;
 
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
+    --secondary: 0 0% 10%;
+    --secondary-foreground: 42 38% 92%;
 
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
+    --muted: 0 0% 12%;
+    --muted-foreground: 42 12% 65%;
 
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
+    --accent: 41 76% 75%;             /* #f0d78c soft gold */
+    --accent-foreground: 0 0% 5%;
 
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive: 0 70% 45%;
+    --destructive-foreground: 42 38% 92%;
 
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
+    --border: 42 25% 18%;
+    --input: 0 0% 12%;
+    --ring: 42 53% 54%;
 
-    --radius: 0.5rem;
+    --radius: 0.25rem;
 
-    --sidebar-background: 0 0% 98%;
+    /* Brand tokens */
+    --gold: 42 53% 54%;
+    --gold-soft: 41 76% 75%;
+    --gold-deep: 38 50% 38%;
+    --noir: 0 0% 5%;
+    --noir-elevated: 0 0% 9%;
 
-    --sidebar-foreground: 240 5.3% 26.1%;
+    --gradient-gold: linear-gradient(135deg, hsl(var(--gold-deep)), hsl(var(--gold)) 50%, hsl(var(--gold-soft)));
+    --gradient-noir: linear-gradient(180deg, hsl(0 0% 4%) 0%, hsl(0 0% 7%) 100%);
+    --gradient-hero-overlay: linear-gradient(180deg, hsl(0 0% 4% / 0.55) 0%, hsl(0 0% 4% / 0.85) 70%, hsl(0 0% 5%) 100%);
 
-    --sidebar-primary: 240 5.9% 10%;
+    --shadow-gold: 0 20px 60px -20px hsl(var(--gold) / 0.35);
+    --shadow-elevated: 0 30px 80px -30px hsl(0 0% 0% / 0.8);
+    --hairline: 1px solid hsl(var(--gold) / 0.18);
 
-    --sidebar-primary-foreground: 0 0% 98%;
+    --transition-elegant: cubic-bezier(0.22, 0.61, 0.36, 1);
 
-    --sidebar-accent: 240 4.8% 95.9%;
-
-    --sidebar-accent-foreground: 240 5.9% 10%;
-
-    --sidebar-border: 220 13% 91%;
-
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    --sidebar-background: 0 0% 5%;
+    --sidebar-foreground: 42 38% 92%;
+    --sidebar-primary: 42 53% 54%;
+    --sidebar-primary-foreground: 0 0% 5%;
+    --sidebar-accent: 0 0% 10%;
+    --sidebar-accent-foreground: 42 38% 92%;
+    --sidebar-border: 42 25% 18%;
+    --sidebar-ring: 42 53% 54%;
   }
 
-  .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
-
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
-
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
-
-    --primary: 210 40% 98%;
-    --primary-foreground: 222.2 47.4% 11.2%;
-
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
-
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
-
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
-
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
-
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
-    --sidebar-background: 240 5.9% 10%;
-    --sidebar-foreground: 240 4.8% 95.9%;
-    --sidebar-primary: 224.3 76.3% 48%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 3.7% 15.9%;
-    --sidebar-accent-foreground: 240 4.8% 95.9%;
-    --sidebar-border: 240 3.7% 15.9%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+  .dark { /* same — site is monolithic dark */
+    --background: 0 0% 5%;
+    --foreground: 42 38% 92%;
   }
 }
 
 @layer base {
-  * {
-    @apply border-border;
-  }
+  * { @apply border-border; }
+
+  html { scroll-behavior: smooth; }
 
   body {
     @apply bg-background text-foreground;
+    font-family: 'Karla', system-ui, sans-serif;
+    font-feature-settings: "ss01", "kern";
+    -webkit-font-smoothing: antialiased;
+  }
+
+  h1, h2, h3, h4, h5 {
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-weight: 500;
+    letter-spacing: -0.01em;
+  }
+
+  ::selection { background: hsl(var(--gold) / 0.35); color: hsl(var(--foreground)); }
+}
+
+@layer components {
+  .text-gold {
+    background: var(--gradient-gold);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  .hairline { border-top: var(--hairline); }
+
+  .container-edge { @apply mx-auto px-6 md:px-10 max-w-[1280px]; }
+
+  .eyebrow {
+    @apply uppercase tracking-[0.3em] text-xs;
+    color: hsl(var(--gold));
+    font-weight: 500;
+  }
+
+  .btn-gold {
+    @apply inline-flex items-center justify-center gap-2 px-7 py-3 text-sm uppercase tracking-[0.18em] font-medium transition-all;
+    background: var(--gradient-gold);
+    color: hsl(var(--noir));
+    box-shadow: var(--shadow-gold);
+  }
+  .btn-gold:hover { transform: translateY(-2px); filter: brightness(1.05); }
+
+  .btn-ghost-gold {
+    @apply inline-flex items-center justify-center gap-2 px-7 py-3 text-sm uppercase tracking-[0.18em] font-medium transition-all;
+    border: 1px solid hsl(var(--gold) / 0.5);
+    color: hsl(var(--gold));
+  }
+  .btn-ghost-gold:hover { background: hsl(var(--gold) / 0.08); border-color: hsl(var(--gold)); }
+
+  .card-noir {
+    background: var(--gradient-noir);
+    border: var(--hairline);
   }
 }
+
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(24px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes shimmer {
+  0%   { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+.animate-fade-up { animation: fade-up 1s var(--transition-elegant) both; }

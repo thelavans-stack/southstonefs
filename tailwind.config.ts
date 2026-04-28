@@ -57,11 +57,32 @@ export default {
           border: "hsl(var(--sidebar-border))",
           ring: "hsl(var(--sidebar-ring))",
         },
+        gold: {
+          DEFAULT: "hsl(var(--gold))",
+          soft: "hsl(var(--gold-soft))",
+          deep: "hsl(var(--gold-deep))",
+        },
+        noir: {
+          DEFAULT: "hsl(var(--noir))",
+          elevated: "hsl(var(--noir-elevated))",
+        },
       },
       borderRadius: {
         lg: "var(--radius)",
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
+      },
+      fontFamily: {
+        serif: ["'Cormorant Garamond'", "Georgia", "serif"],
+        sans: ["Karla", "system-ui", "sans-serif"],
+      },
+      backgroundImage: {
+        "gradient-gold": "var(--gradient-gold)",
+        "gradient-noir": "var(--gradient-noir)",
+      },
+      boxShadow: {
+        gold: "var(--shadow-gold)",
+        elevated: "var(--shadow-elevated)",
       },
       keyframes: {
         "accordion-down": {
