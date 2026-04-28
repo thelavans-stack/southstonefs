@@ -63,6 +63,29 @@ export default {
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
       },
+      fontFamily: {
+        serif: ["'Cormorant Garamond'", "Georgia", "serif"],
+        sans: ["Karla", "system-ui", "sans-serif"],
+      },
+      colors: {
+        gold: {
+          DEFAULT: "hsl(var(--gold))",
+          soft: "hsl(var(--gold-soft))",
+          deep: "hsl(var(--gold-deep))",
+        },
+        noir: {
+          DEFAULT: "hsl(var(--noir))",
+          elevated: "hsl(var(--noir-elevated))",
+        },
+      },
+      backgroundImage: {
+        "gradient-gold": "var(--gradient-gold)",
+        "gradient-noir": "var(--gradient-noir)",
+      },
+      boxShadow: {
+        gold: "var(--shadow-gold)",
+        elevated: "var(--shadow-elevated)",
+      },
       keyframes: {
         "accordion-down": {
           from: {
