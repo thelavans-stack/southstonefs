@@ -67,17 +67,6 @@ export default {
         serif: ["'Cormorant Garamond'", "Georgia", "serif"],
         sans: ["Karla", "system-ui", "sans-serif"],
       },
-      colors: {
-        gold: {
-          DEFAULT: "hsl(var(--gold))",
-          soft: "hsl(var(--gold-soft))",
-          deep: "hsl(var(--gold-deep))",
-        },
-        noir: {
-          DEFAULT: "hsl(var(--noir))",
-          elevated: "hsl(var(--noir-elevated))",
-        },
-      },
       backgroundImage: {
         "gradient-gold": "var(--gradient-gold)",
         "gradient-noir": "var(--gradient-noir)",
