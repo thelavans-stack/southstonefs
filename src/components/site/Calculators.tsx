@@ -1,4 +1,15 @@
 import { useState } from "react";
+import { Download } from "lucide-react";
+import { exportCalculatorPdf, type PdfRow } from "@/lib/exportCalcPdf";
+
+const ExportButton = ({ onClick }: { onClick: () => void }) => (
+  <button
+    onClick={onClick}
+    className="mt-6 inline-flex items-center justify-center gap-2 px-5 py-3 text-[0.7rem] uppercase tracking-[0.2em] border border-gold/40 text-gold hover:bg-gradient-gold hover:text-noir hover:border-transparent transition-all w-full"
+  >
+    <Download className="w-3.5 h-3.5" /> Export PDF
+  </button>
+);
 
 const Tabs = ({ tabs, active, onChange }: { tabs: string[]; active: string; onChange: (t: string) => void }) => (
   <div className="flex flex-wrap gap-2 mb-10 justify-center">
