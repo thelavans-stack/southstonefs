@@ -84,23 +84,53 @@ const Row = ({ label, value }: { label: string; value: string }) => (
 );
 
 /* ---------------- Overpayment ---------------- */
+type RepayMode = "repayment" | "interest" | "part";
+
 function OverpaymentCalc() {
   const [balance, setBalance] = useState(250000);
   const [rate, setRate] = useState(4.75);
   const [years, setYears] = useState(25);
   const [over, setOver] = useState(200);
+  const [mode, setMode] = useState<RepayMode>("repayment");
+  const [partPct, setPartPct] = useState(50); // % of balance on capital repayment
 
   const r = rate / 100 / 12;
   const n = years * 12;
-  const baseMonthly = r === 0 ? balance / n : (balance * r) / (1 - Math.pow(1 + r, -n));
 
+  // Split balance for part-and-part
+  const repayPortion = mode === "repayment" ? balance : mode === "interest" ? 0 : balance * (partPct / 100);
+  const interestPortion = balance - repayPortion;
+
+  const repayMonthly = repayPortion === 0 ? 0 : r === 0 ? repayPortion / n : (repayPortion * r) / (1 - Math.pow(1 + r, -n));
+  const interestMonthly = interestPortion * r;
+  const baseMonthly = repayMonthly + interestMonthly;
+
+  // Simulate the capital-repayment portion only (overpayments reduce capital)
   const simulate = (extra: number) => {
-    let bal = balance;
+    if (repayPortion === 0) {
+      // Pure interest-only — overpayments directly reduce balance
+      let bal = balance;
+      let months = 0;
+      let totalInt = 0;
+      while (bal > 0 && months < 1200 && extra > 0) {
+        const interest = bal * r;
+        totalInt += interest;
+        bal = bal - extra;
+        months++;
+      }
+      if (extra === 0) {
+        // Never repaid within term — interest over full term
+        return { months: n, totalInt: balance * r * n };
+      }
+      return { months, totalInt };
+    }
+    let bal = repayPortion;
     let months = 0;
-    let totalInt = 0;
+    let totalInt = interestPortion * r * n; // interest-only portion runs full term
+    const baseRepay = repayMonthly;
     while (bal > 0 && months < 1200) {
       const interest = bal * r;
-      const pay = Math.min(bal + interest, baseMonthly + extra);
+      const pay = Math.min(bal + interest, baseRepay + extra);
       totalInt += interest;
       bal = bal + interest - pay;
       months++;
@@ -110,15 +140,40 @@ function OverpaymentCalc() {
 
   const base = simulate(0);
   const withOver = simulate(over);
-  const monthsSaved = base.months - withOver.months;
-  const intSaved = base.totalInt - withOver.totalInt;
+  const monthsSaved = Math.max(0, base.months - withOver.months);
+  const intSaved = Math.max(0, base.totalInt - withOver.totalInt);
+
+  const modes: { k: RepayMode; label: string }[] = [
+    { k: "repayment", label: "Capital & Interest" },
+    { k: "interest", label: "Interest Only" },
+    { k: "part", label: "Part & Part" },
+  ];
 
   return (
     <div className="grid md:grid-cols-2 gap-10">
       <div className="space-y-5">
+        <div>
+          <span className="eyebrow text-[0.65rem]">Repayment Type</span>
+          <div className="mt-2 grid grid-cols-3 gap-2">
+            {modes.map((o) => (
+              <button
+                key={o.k}
+                onClick={() => setMode(o.k)}
+                className={`px-3 py-3 text-[0.7rem] uppercase tracking-wider border transition-all ${
+                  mode === o.k ? "bg-gradient-gold text-noir border-transparent" : "border-gold/30 text-foreground/70 hover:border-gold"
+                }`}
+              >
+                {o.label}
+              </button>
+            ))}
+          </div>
+        </div>
         <Field label="Current Balance" value={balance} onChange={setBalance} suffix="£" />
         <Field label="Interest Rate" value={rate} onChange={setRate} suffix="%" step="0.05" />
         <Field label="Remaining Term (Years)" value={years} onChange={setYears} suffix="yrs" />
+        {mode === "part" && (
+          <Field label="Capital Repayment Portion" value={partPct} onChange={(v) => setPartPct(Math.min(100, Math.max(0, v)))} suffix="%" step="1" />
+        )}
         <Field label="Monthly Overpayment" value={over} onChange={setOver} suffix="£" />
       </div>
       <div className="card-noir p-8 flex flex-col justify-center">
@@ -127,6 +182,12 @@ function OverpaymentCalc() {
         <dl className="space-y-3 text-sm">
           <Row label="Standard Monthly Payment" value={fmt(baseMonthly)} />
           <Row label="New Monthly Payment" value={fmt(baseMonthly + over)} />
+          {mode === "part" && (
+            <>
+              <Row label="Capital & Interest Portion" value={fmt(repayMonthly)} />
+              <Row label="Interest-Only Portion" value={fmt(interestMonthly)} />
+            </>
+          )}
           <Row label="Time Saved" value={`${Math.floor(monthsSaved / 12)}y ${monthsSaved % 12}m`} />
           <Row label="Original Term Interest" value={fmt(base.totalInt)} />
         </dl>
