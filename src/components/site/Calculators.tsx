@@ -82,6 +82,27 @@ function MortgageCalc() {
           <Row label="Total Interest" value={fmt(interest)} />
           <Row label="Total Repayable" value={fmt(total)} />
         </dl>
+        <ExportButton
+          onClick={() =>
+            exportCalculatorPdf({
+              title: "Mortgage Repayment Estimate",
+              headline: { label: "Estimated Monthly Repayment", value: fmt(monthly) },
+              inputs: [
+                { label: "Property Price", value: fmt(price) },
+                { label: "Deposit", value: fmt(deposit) },
+                { label: "Interest Rate", value: `${rate.toFixed(2)}%` },
+                { label: "Term", value: `${years} years` },
+              ],
+              results: [
+                { label: "Loan Amount", value: fmt(principal) },
+                { label: "Loan to Value", value: `${ltv.toFixed(1)}%` },
+                { label: "Total Interest", value: fmt(interest) },
+                { label: "Total Repayable", value: fmt(total) },
+              ],
+              filename: "southstone-mortgage-estimate.pdf",
+            })
+          }
+        />
       </div>
     </div>
   );
