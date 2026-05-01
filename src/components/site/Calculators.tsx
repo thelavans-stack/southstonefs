@@ -117,6 +117,7 @@ const Row = ({ label, value }: { label: string; value: string }) => (
 
 /* ---------------- Overpayment ---------------- */
 type RepayMode = "repayment" | "interest" | "part";
+type SplitUnit = "percent" | "amount";
 
 function OverpaymentCalc() {
   const [balance, setBalance] = useState(250000);
@@ -124,23 +125,31 @@ function OverpaymentCalc() {
   const [years, setYears] = useState(25);
   const [over, setOver] = useState(200);
   const [mode, setMode] = useState<RepayMode>("repayment");
-  const [partPct, setPartPct] = useState(50); // % of balance on capital repayment
+  const [splitUnit, setSplitUnit] = useState<SplitUnit>("percent");
+  const [partPct, setPartPct] = useState(50);
+  const [partAmount, setPartAmount] = useState(125000);
 
   const r = rate / 100 / 12;
   const n = years * 12;
 
-  // Split balance for part-and-part
-  const repayPortion = mode === "repayment" ? balance : mode === "interest" ? 0 : balance * (partPct / 100);
+  // Resolve capital-repayment portion based on chosen split unit
+  const repayPortion =
+    mode === "repayment"
+      ? balance
+      : mode === "interest"
+      ? 0
+      : splitUnit === "percent"
+      ? balance * (Math.min(100, Math.max(0, partPct)) / 100)
+      : Math.min(balance, Math.max(0, partAmount));
   const interestPortion = balance - repayPortion;
+  const effectivePct = balance > 0 ? (repayPortion / balance) * 100 : 0;
 
   const repayMonthly = repayPortion === 0 ? 0 : r === 0 ? repayPortion / n : (repayPortion * r) / (1 - Math.pow(1 + r, -n));
   const interestMonthly = interestPortion * r;
   const baseMonthly = repayMonthly + interestMonthly;
 
-  // Simulate the capital-repayment portion only (overpayments reduce capital)
   const simulate = (extra: number) => {
     if (repayPortion === 0) {
-      // Pure interest-only — overpayments directly reduce balance
       let bal = balance;
       let months = 0;
       let totalInt = 0;
@@ -150,15 +159,12 @@ function OverpaymentCalc() {
         bal = bal - extra;
         months++;
       }
-      if (extra === 0) {
-        // Never repaid within term — interest over full term
-        return { months: n, totalInt: balance * r * n };
-      }
+      if (extra === 0) return { months: n, totalInt: balance * r * n };
       return { months, totalInt };
     }
     let bal = repayPortion;
     let months = 0;
-    let totalInt = interestPortion * r * n; // interest-only portion runs full term
+    let totalInt = interestPortion * r * n;
     const baseRepay = repayMonthly;
     while (bal > 0 && months < 1200) {
       const interest = bal * r;
@@ -180,6 +186,8 @@ function OverpaymentCalc() {
     { k: "interest", label: "Interest Only" },
     { k: "part", label: "Part & Part" },
   ];
+
+  const modeLabel = modes.find((m) => m.k === mode)!.label;
 
   return (
     <div className="grid md:grid-cols-2 gap-10">
@@ -204,7 +212,43 @@ function OverpaymentCalc() {
         <Field label="Interest Rate" value={rate} onChange={setRate} suffix="%" step="0.05" />
         <Field label="Remaining Term (Years)" value={years} onChange={setYears} suffix="yrs" />
         {mode === "part" && (
-          <Field label="Capital Repayment Portion" value={partPct} onChange={(v) => setPartPct(Math.min(100, Math.max(0, v)))} suffix="%" step="1" />
+          <div className="space-y-3">
+            <div>
+              <span className="eyebrow text-[0.65rem]">Split By</span>
+              <div className="mt-2 grid grid-cols-2 gap-2">
+                {[
+                  { k: "percent" as SplitUnit, label: "% Split" },
+                  { k: "amount" as SplitUnit, label: "£ Amount" },
+                ].map((o) => (
+                  <button
+                    key={o.k}
+                    onClick={() => setSplitUnit(o.k)}
+                    className={`px-3 py-2.5 text-[0.7rem] uppercase tracking-wider border transition-all ${
+                      splitUnit === o.k ? "bg-gradient-gold text-noir border-transparent" : "border-gold/30 text-foreground/70 hover:border-gold"
+                    }`}
+                  >
+                    {o.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+            {splitUnit === "percent" ? (
+              <Field
+                label="Capital Repayment Portion"
+                value={partPct}
+                onChange={(v) => setPartPct(Math.min(100, Math.max(0, v)))}
+                suffix="%"
+                step="1"
+              />
+            ) : (
+              <Field
+                label="Capital Repayment Amount"
+                value={partAmount}
+                onChange={(v) => setPartAmount(Math.min(balance, Math.max(0, v)))}
+                suffix="£"
+              />
+            )}
+          </div>
         )}
         <Field label="Monthly Overpayment" value={over} onChange={setOver} suffix="£" />
       </div>
@@ -223,6 +267,48 @@ function OverpaymentCalc() {
           <Row label="Time Saved" value={`${Math.floor(monthsSaved / 12)}y ${monthsSaved % 12}m`} />
           <Row label="Original Term Interest" value={fmt(base.totalInt)} />
         </dl>
+        <ExportButton
+          onClick={() => {
+            const inputs: PdfRow[] = [
+              { label: "Repayment Type", value: modeLabel },
+              { label: "Current Balance", value: fmt(balance) },
+              { label: "Interest Rate", value: `${rate.toFixed(2)}%` },
+              { label: "Remaining Term", value: `${years} years` },
+              { label: "Monthly Overpayment", value: fmt(over) },
+            ];
+            if (mode === "part") {
+              inputs.push({
+                label: "Capital / Interest Split",
+                value:
+                  splitUnit === "percent"
+                    ? `${partPct}% / ${(100 - partPct).toFixed(0)}%`
+                    : `${fmt(repayPortion)} / ${fmt(interestPortion)} (${effectivePct.toFixed(1)}%)`,
+              });
+            }
+            const results: PdfRow[] = [
+              { label: "Standard Monthly Payment", value: fmt(baseMonthly) },
+              { label: "New Monthly Payment", value: fmt(baseMonthly + over) },
+            ];
+            if (mode === "part") {
+              results.push(
+                { label: "Capital & Interest Portion", value: fmt(repayMonthly) },
+                { label: "Interest-Only Portion", value: fmt(interestMonthly) },
+              );
+            }
+            results.push(
+              { label: "Time Saved", value: `${Math.floor(monthsSaved / 12)}y ${monthsSaved % 12}m` },
+              { label: "Interest Saved", value: fmt(intSaved) },
+              { label: "Original Term Interest", value: fmt(base.totalInt) },
+            );
+            exportCalculatorPdf({
+              title: "Mortgage Overpayment Analysis",
+              headline: { label: "You Could Save", value: fmt(intSaved) },
+              inputs,
+              results,
+              filename: "southstone-overpayment-analysis.pdf",
+            });
+          }}
+        />
       </div>
     </div>
   );
