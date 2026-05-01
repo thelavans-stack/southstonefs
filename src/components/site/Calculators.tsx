@@ -391,6 +391,29 @@ function StampDutyCalc() {
           <Row label="Effective Rate" value={`${effective.toFixed(2)}%`} />
           <Row label="Net Cost" value={fmt(price + tax)} />
         </dl>
+        <ExportButton
+          onClick={() =>
+            exportCalculatorPdf({
+              title: "Stamp Duty Estimate (2026)",
+              headline: { label: "Stamp Duty Payable", value: fmt(tax) },
+              inputs: [
+                { label: "Property Price", value: fmt(price) },
+                {
+                  label: "Buyer Type",
+                  value: type === "main" ? "Main Home" : type === "ftb" ? "First-Time Buyer" : "Additional / BTL",
+                },
+              ],
+              results: [
+                { label: "Stamp Duty Payable", value: fmt(tax) },
+                { label: "Effective Rate", value: `${effective.toFixed(2)}%` },
+                { label: "Net Cost (Price + SDLT)", value: fmt(price + tax) },
+              ],
+              notes:
+                "Calculated using 2026 SDLT bands for England & Northern Ireland. First-time buyer relief applies on purchases up to £500,000. Additional dwellings carry a 5% surcharge.",
+              filename: "southstone-stamp-duty-estimate.pdf",
+            })
+          }
+        />
       </div>
     </div>
   );
